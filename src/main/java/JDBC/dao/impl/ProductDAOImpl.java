@@ -3,7 +3,6 @@ package JDBC.dao.impl;
 import JDBC.config.MySQLConnector;
 import JDBC.dao.ProductDAO;
 import JDBC.model.Product;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,7 +12,7 @@ public class ProductDAOImpl implements ProductDAO {
     @Override
     public int create(Product product) {
         int status = 400;
-        String SQL = "INSERT INTO product(name, price) VALUES (?, ?)";
+        String SQL = "INSERT INTO products(name, price) VALUES (?, ?)";
 
         try (
                 Connection connection = MySQLConnector.getConnection();
@@ -31,8 +30,7 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public Product getById(long id) {
-        int status = 400;
-        String SQL = "select name, price from product where id = ?";
+        String SQL = "select name, price from products where id = ?";
         Product product = null;
 
         try (Connection connection = MySQLConnector.getConnection();
@@ -54,13 +52,28 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public int update(Product product) {
-        return 0;
+        int status = 400;
+        String SQL = "update products set name=?, price=? where id=?";
+
+        try (Connection connection = MySQLConnector.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+        ) {
+            preparedStatement.setString(1, product.getName());
+            preparedStatement.setBigDecimal(2, product.getPrice());
+            preparedStatement.setLong(3, product.getId());
+            preparedStatement.executeUpdate();
+            status = 200;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return status;
+
     }
 
 
     @Override
     public int deleteById(long id) {
-        String SQL = "delete from product where id=?";
+        String SQL = "delete from products where id=?";
 
         try (Connection connection = MySQLConnector.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL);
@@ -70,7 +83,7 @@ public class ProductDAOImpl implements ProductDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return 202;
+        return 200;
     }
 
 

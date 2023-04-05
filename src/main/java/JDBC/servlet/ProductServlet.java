@@ -23,6 +23,24 @@ public class ProductServlet extends HttpServlet {
     }
 
     @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String idStr = request.getParameter("id");
+        if (idStr == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing 'id' parameter");
+            return;
+        }
+        try {
+            long id = Long.parseLong(idStr);
+            Product product = RestUtil.getFromJson(request, Product.class);
+            product.setId(id);
+            int status = productService.update(product);
+            response.setStatus(status);
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id parameter: " + idStr);
+        }
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String idStr = request.getParameter("id");
         if (idStr == null) {
